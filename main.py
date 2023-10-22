@@ -32,8 +32,7 @@ class Grammar:
     def Parser(self, string):
         self.respuesta=False
         for i in self.reglas:
-            if i[0] == string[0]:
-                self.ParserRec(string, [k for k in i])
+            self.ParserRec(string, [k for k in i])
         return self.respuesta
 
 
