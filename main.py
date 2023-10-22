@@ -37,14 +37,15 @@ class Grammar:
 
 
 if __name__=="__main__":
-    index= input("ingrese el numero de simbolos terminales, numero de reglas y numero de cadenas a analizar separadas por estacio.\n").split()
-    N= input("ingresar simbolos terminales separados por espacio.(ingresar en Mayusculas )\n").split()
-    print("ingrese las reglas de produccion una por una (de la siguinete forma S-a...)")
+    #aca se ingresan los 4 indices separados por espacio: numero de no terminales, numero de reglas y cadenas a revisar
+    index= input().split()
+    #aca se ingresan los simbolos no terminales
+    N= input().split()
+    #aca se pide el ingreso de reglas de produccion
     P={}
     strings=[]
-
     for _ in range(int(index[1])):
-        rule=input("ingresar regla: ").split('-')
+        rule=input().split('-')
         if rule[0] not in P:
             P[rule[0]]=[rule[1]]
         else:
@@ -53,7 +54,7 @@ if __name__=="__main__":
     analisis= Grammar(N,P)
     
     for _ in range(int(index[-1])):
-        strings.append(input("ingresar cadena: "))
+        strings.append(input())
         pass
 
     for i in strings:
