@@ -5,23 +5,36 @@ class Grammar:
         self.P = P
         self.first={}
         self.Follow={}
-        self.reglas = []
-        for i in self.P:
-            self.reglas.extend(self.P[i])
+        self.faux=[]
 
-    def FirsRec(self, N):
+    def FirstRec(self, N):
+        #Set of rules of the non terminal N
         for i in self.P[N]:
+            #Base case
+            #Is a terminal?
             if i[0] not in self.N:
-                if N in self.first: self.first[N].append(i[0]) 
-                else: self.first[N]=[i[0]]
-            elif i in self.N:
-                self.FirstRec(i)
+                #N is in First?
+                self.agregation_function(N, i[0])
+                for x in self.faux:
+                    self.agregation_function(x, i[0])
+            elif i[0] in self.N:
+                self.faux.append(N)
+                self.FirstRec(i[0])
             pass
-        pass
+        if len(self.faux)>0:
+            self.faux.pop(-1)
 
+    def agregation_function(self,N, T):
+        if N in self.first:
+            #To fill the dictionary without repeated terminals 
+            if T not in self.first[N]: 
+                self.first[N].append(T)     
+        else: 
+            self.first[N]=[T]
+            
     def First(self):
-        for n in self.N: self.FirsRec(n)
-        pass
+        for n in self.N: 
+            self.FirstRec(n)
         print(self.first)
 
 
