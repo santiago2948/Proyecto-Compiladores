@@ -1,16 +1,28 @@
-
 class Grammar:
     def __init__(self, N, P):
         self.alphabet = []
         self.N = N
         self.P = P
+        self.first={}
+        self.Follow={}
         self.reglas = []
         for i in self.P:
             self.reglas.extend(self.P[i])
 
-    def First():
-
+    def FirsRec(self, N):
+        for i in self.P[N]:
+            if i[0] not in self.N:
+                if N in self.first: self.first[N].append(i[0]) 
+                else: self.first[N]=[i[0]]
+            elif i in self.N:
+                self.FirstRec(i)
+            pass
         pass
+
+    def First(self):
+        for n in self.N: self.FirsRec(n)
+        pass
+        print(self.first)
 
 
 if __name__=="__main__":
@@ -29,11 +41,4 @@ if __name__=="__main__":
         pass
     analisis= Grammar(N,P)
     #strings son las cadenas a analizar
-    strings=[]
-    for _ in range(int(index[-1])):
-        strings.append(input())
-        pass
-    for i in strings:
-        print(analisis.Parser(i))
-    
-    pass
+    analisis.First()
