@@ -18,15 +18,14 @@ class Grammar:
                 for x in self.faux:
                     self.agregation_function(x, i[0])
             elif i[0] in self.N:
-                for k in i[0]:
-                    if "e" not in self.P[k] and k in self.N:
-                        self.faux.append(N)
-                        self.FirstRec(k)
-                        break
-                    elif "e" in self.P[k] and k in self.N:
-                        self.faux.append(N)
-                        self.FirstRec(k)
-                    else: break
+                for k in range(0, len(i)):
+                    if i[k] in self.N:
+                            self.faux.append(N)
+                            self.FirstRec(i[k])   
+                            if "e" not in self.P[i[k]]:
+                                break
+                    else: self.agregation_function(N, i[k])
+
         if len(self.faux)>0:
             self.faux.pop(-1)
 
