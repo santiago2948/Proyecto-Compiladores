@@ -1,46 +1,34 @@
-class Grammar:
-    def __init__(self, N, P):
-        self.alphabet = []
-        self.N = N
-        self.P = P
-        self.first={}
-        self.Follow={}
-        self.faux=[]
+from grammar.grammar import *
+import random
 
-    def FirstRec(self, N):
-        #Set of rules of the non terminal N
-        for i in self.P[N]:
-            #Base case
-            #Is a terminal?
-            if i[0] not in self.N:
-                #N is in First?
-                self.agregation_function(N, i[0])
-                for x in self.faux:
-                    self.agregation_function(x, i[0])
-            elif i[0] in self.N:
-                for k in range(0, len(i)):
-                    if i[k] in self.N:
-                            self.faux.append(N)
-                            self.FirstRec(i[k])   
-                            if "e" not in self.P[i[k]]:
-                                break
-                    else: self.agregation_function(N, i[k])
+def nuevoNoterminal(dicc):
+    letras=["Z", "X", "E", "W", "Q", "P", "M", "Y"]
+    control=True
+    while control:
+        no_terminal= random.choice(letras)
+        if no_terminal not in dicc: control=False
+    return no_terminal
 
-        if len(self.faux)>0:
-            self.faux.pop(-1)
+def leftRecursion(producciones):
+    modificado=producciones.copy()
+    for nonTerminal in producciones:
+        new_rules=["e"]
+        temporal=[]
+        #creacion de un nuevo no terminal no presente en la gramatica para reemplazar las producciones con LR
+        nuevo=nuevoNoterminal(modificado)
+        for i in range(0,len(producciones[nonTerminal])):
+            regla=producciones[nonTerminal][i]
+            #coomparacion de las producciones para verificar si tienen recursion izquierda
+            if regla[0]==nonTerminal: new_rules.append(regla[1:]+nuevo)
+            #si hubo una produccion co recursion entonces a las reglas sin recursion se les concatena el nuevo no terminal
+            elif len(new_rules)>1:temporal.append(regla+nuevo)
+        #agregacion de las nuevas reglas
+        if len(new_rules)>1:
+            modificado[nuevo]=new_rules
+            modificado[nonTerminal]=temporal
+        pass
 
-    def agregation_function(self,N, T):
-        if N in self.first:
-            #To fill the dictionary without repeated terminals 
-            if T not in self.first[N]: 
-                self.first[N].append(T)     
-        else: 
-            self.first[N]=[T]
-            
-    def First(self):
-        for n in self.N: 
-            self.FirstRec(n)
-        print(self.first)
+    return modificado
 
 
 if __name__=="__main__":
@@ -50,13 +38,22 @@ if __name__=="__main__":
     N= input().split()
     #aca se pide el ingreso de reglas de produccion
     P={}
+    lr_controlller=False
     for _ in range(int(index[1])):
         rule=input().split('-')
         if rule[0] not in P:
             P[rule[0]]=[rule[1]]
         else:
-            P[rule[0]].append(rule[1])
+            regla=rule[1]
+            #se da preoridad a las recursiones izquierdas
+            if regla[0]==rule[0]: 
+                lr_controlller=True
+                P[rule[0]].insert(0,rule[1])
+            else:  P[rule[0]].append(rule[1])
         pass
+    if leftRecursion:
+        P=leftRecursion(P)
     analisis= Grammar(N,P)
-    #strings son las cadenas a analizar
-    analisis.First()
+    analisis.follow()
+    #gramatica de prueba
+    {"Z":["Za","Zb","c"], "X":["Xa","Xb","c"]}
