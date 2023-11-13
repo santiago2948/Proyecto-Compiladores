@@ -30,10 +30,7 @@ def leftRecursion(producciones):
 
     return modificado
 
-
-if __name__=="__main__":
-    #aca se ingresan los 4 indices separados por espacio: numero de no terminales, numero de reglas y cadenas a revisar
-    index= input().split()
+def ingresarGramatica(index):
     #aca se ingresan los simbolos no terminales
     N= input().split()
     #aca se pide el ingreso de reglas de produccion
@@ -55,5 +52,12 @@ if __name__=="__main__":
         P=leftRecursion(P)
     analisis= Grammar(N,P)
     analisis.follow()
+    return analisis
+
+
+if __name__=="__main__":
+     #aca se ingresan los 4 indices separados por espacio: numero de no terminales, numero de reglas y cadenas a revisar
+    index= input().split()
+    gramatica = ingresarGramatica(index)
     #gramatica de prueba
     {"Z":["Za","Zb","c"], "X":["Xa","Xb","c"]}
