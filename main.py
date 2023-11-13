@@ -51,7 +51,8 @@ def ingresarGramatica(index):
     if leftRecursion:
         P=leftRecursion(P)
     analisis= Grammar(N,P)
-    analisis.follow()
+    analisis.First()
+    analisis.apply_follow()
     return analisis
 
 
