@@ -1,5 +1,4 @@
 from grammar.grammar import *
-from LL1.ll1_parsing import *
 import random
 
 def nuevoNoterminal(dicc):
@@ -52,7 +51,6 @@ def ingresarGramatica(index):
     if lr_controlller:
         P=leftRecursion(P)
     analisis= Grammar(N,P)
-    print(analisis.grammar_configuration())
     return analisis
 
 
@@ -61,5 +59,4 @@ if __name__=="__main__":
      #aca se ingresan los 4 indices separados por espacio: numero de no terminales, numero de reglas y cadenas a revisar
     index= input().split()
     gramatica = ingresarGramatica(index)
-    ll1parsing= LL1Parsing(gramatica)
-    ll1parsing.createTable()
+    gramatica.Parser()

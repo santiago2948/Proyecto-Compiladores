@@ -1,3 +1,5 @@
+from LL1.ll1_parsing import *
+
 class Grammar:
     def __init__(self, N, P):
         self.alphabet = []
@@ -219,8 +221,13 @@ class Grammar:
         print(self.follow)
         pass
  
-    def grammar_configuration(self):
+    def Parser(self):
         self.First()
         self.apply_follow()
-        return self.isLL1()
+        answer= self.isLL1()
+        if answer:
+            parser= LL1Parsing(self)
+            parser.analize()
+            pass
+        
         
