@@ -44,8 +44,42 @@ class Grammar:
         for n in self.N: 
             self.FirstRec(n)
         print(self.first)
-    
-  
+
+    def firstRule(self, rule):
+        firstr=[]
+        for i in rule:
+            if i in self.P:
+                firstr.extend(self.first[i])
+                if "e" in firstr: firstr.remove("e")
+                if "e" not in self.first[i]: return firstr
+            else:
+                firstr.append(i)
+                return firstr
+        firstr.append("e")
+        return firstr
+
+    def isLL1(self):
+        for n in self.P:
+            for i in range(0,len(self.P[n])):
+                f_rule_alpha = self.firstRule(self.P[n][i])
+                for j in range(i+1, len(self.P[n])):
+                    f_rule_beta= self.firstRule(self.P[n][j])
+                    intersection= set(f_rule_alpha) & set(f_rule_beta)
+                    #aplying the first filter of ll(1) grammars where if the intersection between beta first and alpha first is diferent to empty this grammar is not ll(1)
+                    if len(intersection)>0:
+                        return False
+                    #aplying secondary copnditions to first intersect with follow of A if "e" in first of one of both rules
+                    if "e" in f_rule_beta:
+                        intersection= set(f_rule_beta) & set(self.follow[n])
+                        if len(intersection)>0:
+                            return False
+                        pass
+                    if "e" in f_rule_alpha:
+                        intersection= set(f_rule_alpha) & set(self.follow[n])
+                        if len(intersection)>0:
+                            return False
+        return True
+
 #____________________________________________________________________________
 
     #Follow requeriments:
@@ -167,7 +201,6 @@ class Grammar:
         
 #________________________________________________________________        
         
-
     def apply_follow(self):
         for i in self.N:
             self.Follow(i)   
@@ -185,4 +218,9 @@ class Grammar:
                         self.follow[B].append(char_A)    
         print(self.follow)
         pass
-#____________________________________________________________________________    
+ 
+    def grammar_configuration(self):
+        self.First()
+        self.apply_follow()
+        return self.isLL1()
+        
