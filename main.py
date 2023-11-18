@@ -9,7 +9,7 @@ def nuevoNoterminal(dicc):
         if no_terminal not in dicc: control=False
     return no_terminal
 
-def leftRecursion(producciones):
+def leftRecursion(producciones, N):
     modificado=producciones.copy()
     for nonTerminal in producciones:
         new_rules=["e"]
@@ -24,18 +24,19 @@ def leftRecursion(producciones):
             elif len(new_rules)>1:temporal.append(regla+nuevo)
         #agregacion de las nuevas reglas
         if len(new_rules)>1:
+            N.append(nuevo)
             modificado[nuevo]=new_rules
             modificado[nonTerminal]=temporal
         pass
 
-    return modificado
+    return [modificado, N]
 
 def ingresarGramatica(index):
     #aca se ingresan los simbolos no terminales
     N= input().split()
+    S=N[0]
     #aca se pide el ingreso de reglas de produccion
     P={}
-    lr_controlller=False
     for _ in range(int(index[1])):
         rule=input().split('-')
         if rule[0] not in P:
@@ -44,13 +45,13 @@ def ingresarGramatica(index):
             regla=rule[1]
             #se da preoridad a las recursiones izquierdas
             if regla[0]==rule[0]: 
-                lr_controlller=True
                 P[rule[0]].insert(0,rule[1])
             else:  P[rule[0]].append(rule[1])
         pass
-    if lr_controlller:
-        P=leftRecursion(P)
-    analisis= Grammar(N,P)
+    
+    P=leftRecursion(P, N)[0]
+    N=leftRecursion(P, N)[1]
+    analisis= Grammar(N,P, S)
     return analisis
 
 

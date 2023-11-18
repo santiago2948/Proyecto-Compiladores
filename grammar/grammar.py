@@ -1,4 +1,5 @@
 from LL1.ll1_parsing import *
+import random
 
 class Grammar:
     def __init__(self, N, P):
@@ -220,7 +221,59 @@ class Grammar:
                         self.follow[B].append(char_A)    
         print(self.follow)
         pass
- 
+#____________________________________________________________________________    
+
+    def nuevoNoterminal(self,dicc):
+        letras=["Z", "X", "E", "W", "Q", "P", "M", "Y"]
+        control=True
+        while control:
+            no_terminal= random.choice(letras)
+            if no_terminal not in dicc: control=False
+        return no_terminal
+
+    def factorizacion_izquierda(self, produccion):
+        #Esto crea un nuevo diccionario para poder almacenar las producciones del nuevo no terminal
+        modificar = produccion.copy()
+        #Hacemos un nuevo diccionario para el nuevo no terminal factorizado
+        nuevas_producciones = {}
+        #Iteramos sobre todas las producciones
+        for no_terminal in self.P:
+            #Entramos en la producciones del no terminal
+            producciones = self.P[no_terminal]
+            print(f"No terminal {no_terminal}")
+            #Iteramos dentro de la primera producción
+            for g in range(0,len(producciones)-1):
+                    #Iteramos dentro de la segunda producción
+                    for w in range(g + 1, len(producciones)-1):
+                        print(len(producciones[w]))
+                        #Verificamos si la primera y segunda producción son mayores a 0 y verificamos la igualdad de la primera posición de las dos producciones
+                        if producciones[g][0] == producciones[w][0]:       
+                            #Generamos un nuevo no terminal para la factorización
+                            nuevo_no_terminal = self.nuevoNoterminal(modificar)
+                            #Incluimos ese nuevo no terminal dentro de la lista de los no terminales
+                            self.N.append(nuevo_no_terminal)
+                            #Dentro del nuevo no terminal, ponemos lo que le seguía al no terminal original para la factorización
+                            nuevas_producciones[nuevo_no_terminal] = [
+                                (producciones[g][1:]), (producciones[w][1:])
+                            ]
+                            
+                            #Reemplazamos dentro del no terminal original luego de la primera posición ponemos el nuevo no terminal que creamos 
+                            
+                            self.P[no_terminal][g] = producciones[g][0] + (nuevo_no_terminal)
+                            self.P[no_terminal][w] = producciones[w][0] + (nuevo_no_terminal)
+                            print(producciones[g])
+
+                            if len(producciones[w]) > 1: 
+                                del producciones[w]    
+
+                            print("Lista de no terminales")
+                            print(self.N)
+        #Actualizamos el diccionario de las producciones con las nuevas producciones que sacamos del nuevo no terminal
+        self.P.update(nuevas_producciones)
+        #Verificamos mediante un print que se hayan incluído las producciones
+        print("Actualizacion de producciones")
+        print(self.P)
+        
     def Parser(self):
         self.First()
         self.apply_follow()

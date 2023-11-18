@@ -26,4 +26,5 @@ class LL1Parsing:
 
     def analize(self):
         self.createTable()
+        print(self.table)
         pass
