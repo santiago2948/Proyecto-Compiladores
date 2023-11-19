@@ -2,7 +2,9 @@ from LL1.ll1_parsing import *
 import random
 
 class Grammar:
-    def __init__(self, N, P):
+    def __init__(self, N, P, S):
+
+        self.start=S
         self.alphabet = []
         self.N = N
         self.P = P
@@ -231,16 +233,16 @@ class Grammar:
             if no_terminal not in dicc: control=False
         return no_terminal
 
-    def factorizacion_izquierda(self, produccion):
+    def factorizacion_izquierda(self):
         #Esto crea un nuevo diccionario para poder almacenar las producciones del nuevo no terminal
-        modificar = produccion.copy()
+        modificar = self.P.copy()
         #Hacemos un nuevo diccionario para el nuevo no terminal factorizado
         nuevas_producciones = {}
         #Iteramos sobre todas las producciones
         for no_terminal in self.P:
             #Entramos en la producciones del no terminal
             producciones = self.P[no_terminal]
-            print(f"No terminal {no_terminal}")
+           
             #Iteramos dentro de la primera producción
             for g in range(0,len(producciones)-1):
                     #Iteramos dentro de la segunda producción
@@ -270,17 +272,19 @@ class Grammar:
                             print(self.N)
         #Actualizamos el diccionario de las producciones con las nuevas producciones que sacamos del nuevo no terminal
         self.P.update(nuevas_producciones)
-        #Verificamos mediante un print que se hayan incluído las producciones
-        print("Actualizacion de producciones")
-        print(self.P)
-        
-    def Parser(self):
+
+
+    def Parser(self, string):
         self.First()
         self.apply_follow()
         answer= self.isLL1()
         if answer:
             parser= LL1Parsing(self)
-            parser.analize()
+            analizado=parser.analize(string)
+            if analizado:
+                print("Si")
+            else: 
+                print("No")
             pass
         
         

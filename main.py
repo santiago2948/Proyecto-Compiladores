@@ -48,10 +48,10 @@ def ingresarGramatica(index):
                 P[rule[0]].insert(0,rule[1])
             else:  P[rule[0]].append(rule[1])
         pass
-    
-    P=leftRecursion(P, N)[0]
-    N=leftRecursion(P, N)[1]
-    analisis= Grammar(N,P, S)
+    terminnal=leftRecursion(P, N)
+    P=terminnal[0]
+    N=terminnal[1]
+    analisis= Grammar(N,P,S)
     return analisis
 
 
@@ -60,4 +60,5 @@ if __name__=="__main__":
      #aca se ingresan los 4 indices separados por espacio: numero de no terminales, numero de reglas y cadenas a revisar
     index= input().split()
     gramatica = ingresarGramatica(index)
-    gramatica.Parser()
+    gramatica.factorizacion_izquierda()
+    gramatica.Parser("aabc")
