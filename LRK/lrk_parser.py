@@ -8,21 +8,42 @@ class LRK:
         self.P= grammar.P
         self.extension=grammar.start+"'"
         self.S=grammar.start
+        self.kernels=[]
         self.P[self.extension]=[self.S]
         pass
     
-    def clousure(self, kernel,N,items=[]):
-        item=kernel[N][0]
-        index=kernel[N][1]
+    def clousure_start(self, item, clousure=[]):
+        control=item["N"]
+        rule=item["item"][0]
+        point=item["item"][1]
+        
+        if rule[point] in self.P:
+            for regla in self.P[rule[point]]:
+                add= {"N": rule[point], "item": [regla, 0]}
+                if add not in clousure:
+                    clousure.append(add)
+                if regla[0] in self.P and regla[0]!=control:
+                    clousure= self.clousure_start(add, clousure)
+                pass
+        return clousure
+
+    def addKernel(self, item):
+        if item not in self.kernels:
+            self.kernels.append(item)
+        return self.kernels.index(item)
+        
+    def clousure(self, items):
+        agregados=[]
 
         pass
 
-    def parsing(self):
-        items_iniciales={} 
-        items_iniciales[self.extension]=self.P[self.extension].append(0)
-        self.clousure(items_iniciales)
-
+    def createAutomata(self):
+        automata={} 
+        item_inicial= {"N": self.extension,"item": [self.P[self.extension], 0]}
+        item=self.addKernel(item_inicial)
+        clousure=self.clousure_start(item_inicial, [item_inicial])
+        automata[item]={"clousure": clousure}
+        print(self.kernels)
+        print(automata)
         pass
 
-if [1, {"h":["hola", 0]}] ==[1, {"h":["hola", 0]}]:
-    print("hello")

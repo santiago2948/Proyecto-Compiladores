@@ -1,6 +1,6 @@
 from grammar.grammar import *
 import random
-
+from LRK.lrk_parser import *
 def nuevoNoterminal(dicc):
     letras=["Z", "X", "E", "W", "Q", "P", "M", "Y"]
     control=True
@@ -58,7 +58,11 @@ def ingresarGramatica(index):
 
 if __name__=="__main__":
      #aca se ingresan los 4 indices separados por espacio: numero de no terminales, numero de reglas y cadenas a revisar
-    index= input().split()
+    """index= input().split()
     gramatica = ingresarGramatica(index)
     gramatica.factorizacion_izquierda()
-    gramatica.Parser("aabc")
+    gramatica.Parser("aabc")"""
+    gramar= Grammar(["E", "T", "F"], {"E":["E+T", "T"], "T":["T*F", "F"], "F":["(E)", "i"]}, "E")
+    lr=LRK(gramar) 
+    lr.createAutomata()
+    
