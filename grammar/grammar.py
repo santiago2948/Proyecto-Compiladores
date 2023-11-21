@@ -1,4 +1,5 @@
 from LL1.ll1_parsing import *
+from LRK.lrk_parser import *
 import random
 
 class Grammar:
@@ -48,7 +49,6 @@ class Grammar:
     def First(self):
         for n in self.N: 
             self.FirstRec(n)
-        print(self.first)
 
     def firstRule(self, rule):
         firstr=[]
@@ -186,15 +186,12 @@ class Grammar:
             for char in beta:
                 if char in self.N:
                     if 'e' in self.first[char]:
-                        print("e is in First(beta)")
                         return False
                     else:
-                        print("rule is type 1")
                         self.beta = beta
                         
                         return True
                 if char == 'e':
-                    print('rule is not type 1')
                     return False                   
             #print("rule is type 1")  
             self.beta = beta   
@@ -221,70 +218,113 @@ class Grammar:
                     #print(f'follow de {A}: {self.follow[A]}')
                     if char_A not in self.follow[B] and char_A != '':   
                         self.follow[B].append(char_A)    
-        print(self.follow)
         pass
 #____________________________________________________________________________    
 
     def nuevoNoterminal(self,dicc):
-        letras=["Z", "X", "E", "W", "Q", "P", "M", "Y"]
+        letras=["Z", "X", "E", "W", "Q", "P", "M", "Y", "L","O", "H", "R", "C"]
         control=True
         while control:
             no_terminal= random.choice(letras)
             if no_terminal not in dicc: control=False
         return no_terminal
+    
+    def leftRecursion(self):
+        producciones=self.P.copy()
+        N=self.N.copy()
+        modificado=self.P.copy()
+        for nonTerminal in producciones:
+            new_rules=["e"]
+            temporal=[]
+            #creacion de un nuevo no terminal no presente en la gramatica para reemplazar las producciones con LR
+            nuevo= self.nuevoNoterminal(modificado)
+            for i in range(0,len(producciones[nonTerminal])):
+                regla=producciones[nonTerminal][i]
+                #coomparacion de las producciones para verificar si tienen recursion izquierda
+                if regla[0]==nonTerminal: new_rules.append(regla[1:]+nuevo)
+                #si hubo una produccion co recursion entonces a las reglas sin recursion se les concatena el nuevo no terminal
+                elif len(new_rules)>1:temporal.append(regla+nuevo)
+            #agregacion de las nuevas reglas
+            if len(new_rules)>1:
+                N.append(nuevo)
+                modificado[nuevo]=new_rules
+                modificado[nonTerminal]=temporal
+            pass
 
-    def factorizacion_izquierda(self):
-        #Esto crea un nuevo diccionario para poder almacenar las producciones del nuevo no terminal
+        self.N=N
+        self.P=modificado
+
+    def left_factoring(self):
+
         modificar = self.P.copy()
-        #Hacemos un nuevo diccionario para el nuevo no terminal factorizado
+        non_terminals = self.N.copy()
         nuevas_producciones = {}
-        #Iteramos sobre todas las producciones
-        for no_terminal in self.P:
-            #Entramos en la producciones del no terminal
+    
+        for no_terminal in non_terminals:
             producciones = self.P[no_terminal]
-           
-            #Iteramos dentro de la primera producción
-            for g in range(0,len(producciones)-1):
-                    #Iteramos dentro de la segunda producción
-                    for w in range(g + 1, len(producciones)-1):
-                        print(len(producciones[w]))
-                        #Verificamos si la primera y segunda producción son mayores a 0 y verificamos la igualdad de la primera posición de las dos producciones
-                        if producciones[g][0] == producciones[w][0]:       
-                            #Generamos un nuevo no terminal para la factorización
-                            nuevo_no_terminal = self.nuevoNoterminal(modificar)
-                            #Incluimos ese nuevo no terminal dentro de la lista de los no terminales
-                            self.N.append(nuevo_no_terminal)
-                            #Dentro del nuevo no terminal, ponemos lo que le seguía al no terminal original para la factorización
-                            nuevas_producciones[nuevo_no_terminal] = [
-                                (producciones[g][1:]), (producciones[w][1:])
-                            ]
-                            
-                            #Reemplazamos dentro del no terminal original luego de la primera posición ponemos el nuevo no terminal que creamos 
-                            
-                            self.P[no_terminal][g] = producciones[g][0] + (nuevo_no_terminal)
-                            self.P[no_terminal][w] = producciones[w][0] + (nuevo_no_terminal)
-                            print(producciones[g])
 
-                            if len(producciones[w]) > 1: 
-                                del producciones[w]    
+            if len(producciones) >= 2:
+                for g in range(0,len(producciones)-1):                 
+                        for w in range(g+1, len(producciones)):
 
-                            print("Lista de no terminales")
-                            print(self.N)
-        #Actualizamos el diccionario de las producciones con las nuevas producciones que sacamos del nuevo no terminal
-        self.P.update(nuevas_producciones)
+                            if w < len(producciones):
+     
+                                if producciones[g][0] == producciones[w][0]:    
 
+                                    nuevo_no_terminal = self.nuevoNoterminal(modificar)               
+                                    self.N.append(nuevo_no_terminal)      
+                                    if len(producciones[g]) > 1 and len(producciones[w]) > 1:
+                                        nuevas_producciones[nuevo_no_terminal] = [
+                                            (producciones[g][1:]), (producciones[w][1:])
+                                        ]
+                                    elif len(producciones[g]) <= 1:
+                                        nuevas_producciones[nuevo_no_terminal] = ['e', producciones[w][1:]]
+                                    elif len(producciones[w]) <= 1:
+                                        nuevas_producciones[nuevo_no_terminal] = [producciones[g][1:], 'e']   
+
+                                    self.P[no_terminal][g] = producciones[g][0] + (nuevo_no_terminal)
+                                    self.P[no_terminal][w] = producciones[w][0] + (nuevo_no_terminal)
+                                
+                                    if len(producciones[w]) > 1: 
+                                        del producciones[w]    
+                                                                
+            else:
+                continue
+
+
+
+        self.P.update(nuevas_producciones)      
+
+    def tryTransform(self):
+        self.left_factoring()
+        self.leftRecursion()
+        self.First()
+        self.apply_follow()
+        answer= self.isLL1()
+        return answer
+        
+#____________________________________________________________________________
 
     def Parser(self, string):
         self.First()
         self.apply_follow()
         answer= self.isLL1()
+        answer=self.tryTransform()
+        print(self.P)
         if answer:
             parser= LL1Parsing(self)
             analizado=parser.analize(string)
             if analizado:
-                print("Si")
-            else: 
+                print("Yes")
+            else:
+                print("No")
+        else:
+            lr=LRK(self) 
+            answer=lr.analize_lrk(string)
+            if answer:
+                print("Yes")
+            elif answer=="mis":
+                pass
+            else:
                 print("No")
             pass
-        
-        

@@ -105,6 +105,7 @@ class LRK:
         kernel = rules[0]
         _id=self.addKernel(kernel)
         obj={"clousure":clousure}
+        #actons es el aributo de el diccionario el cul contienen las transiciones
         if "actions" not in self.automata[ide]:
             self.automata[ide]["actions"]={letra:_id}
         else:
@@ -115,6 +116,7 @@ class LRK:
 
         if _id not in self.automata:
             self.automata[_id]=obj
+            #se envia el clousure para crear las tablas de las hojas como una busqueda en frofundidd
             self.createAutomata_rec(clousure, _id)
 
     def createAutomata_rec(self, items, _id):
@@ -138,16 +140,23 @@ class LRK:
             
                 
     def createReduccions(self):
+        #la funcion create reduccion crea las reduccionesde la tabla en los accions agregando todas las reglas en las cuales el indicados del punto se encuentre en el el final de la regla
+        #es decir que seai giaual al len de la regla
         for _id in self.automata:
             for item in self.automata[_id]["clousure"]:
+                    #se verifica qeu el indicador del punto se encuentre a el final de la cadena o si la regla deriva direcamente en epsilon
                     if item["item"][1] == len(item["item"][0]) or item["item"][0]=="e":
+                        #la extension de la cadena no se agrega en la tabla para realizar reducciones
                         if item["N"] != self.extension:
                             regla=item["item"].copy()
                             regla+= item["N"]
+                            #se usa el follow del no terminal para añadir las reducciones que se realizan en los terminales contenidos en este
                             for letter in self.follow[item["N"]]: 
                                 if "actions" not in self.automata[_id]:
                                     self.automata[_id]["actions"]={letter: regla}
                                 else:
+                                    #se verifica que no haya conflico a la hora de agregar las reglas, es decir que ya no haya una regla o moviminto en el
+                                    #terminal o no terminal que se vaya a agregar, en caso de ser asi se retorna falso ya que la gramatica no es LL(1)
                                     if letter not in self.automata[_id]["actions"]:
                                         self.automata[_id]["actions"][letter]= regla
                                     else:
@@ -155,16 +164,87 @@ class LRK:
 
     def createAutomata(self):
         self.initialItems()
-        if self.createAutomata_rec(self.automata[0]["clousure"], 0)==False:
-            print("No")
-            return
-        self.createReduccions()
-        print(f"kernel: {self.kernels} numero: {len(self.kernels)}")
-        print('automata')
-        for _id in self.automata:
-            if "actions" in self.automata[_id]:
-                print(f"{_id} ___ {self.automata[_id]["actions"]}")
-
-        print(self.automata)
         
-           
+        if self.createAutomata_rec(self.automata[0]["clousure"], 0)==False:
+            return False
+        
+        if self.createReduccions()==False:
+            return False
+        tabla={}
+        for _id in self.automata:
+                if "actions" in self.automata[_id]:
+                    if self.automata[_id]["clousure"][0]["N"] == self.extension and len(self.automata[_id]["clousure"][0]["item"][0]) -1 ==self.automata[_id]["clousure"][0]["item"][1]:
+                        tabla[_id] = self.automata[_id]["actions"]
+                        tabla[_id]["$"] = "aceptar"
+                        pass
+                    else: 
+                        tabla[_id] = self.automata[_id]["actions"]
+        return tabla
+
+    
+    def analize_lrk(self, string)->bool:
+        table = self.createAutomata()
+        
+        if table ==False:
+            print("error")
+            return "mis"
+    
+        stack_states = []
+        stack_states.append(0)
+        stack_states.append('$')
+        stack_input =[i for i in string]
+        stack_input.append('$')
+        stack_symbols = []
+
+        #print("Configurations")
+        #< symbols analyzed , states , pila de String>
+        # []    [0$]     [aacbb$]
+        #Caso base: cuando el simbolo inicial esté en el stack del string
+         
+         # un estado shift = numero verificar si lo que devuelve es int
+        while( len(stack_input) >= 1 ):
+            
+            top_3 = stack_input[0]
+            
+            top_2 = stack_states[0]
+            if len(stack_symbols) > 1:
+                top_1 = stack_symbols[0]
+                
+                
+            #print(f'< {stack_symbols} | {stack_states} | {stack_input} >')    
+            
+            if top_3 not in table[top_2]:
+                return False
+            
+            elif table[top_2][top_3] == "aceptar":
+                #Base Case when the simbol and the state shifts into accept
+                return True
+            elif type(table[top_2][top_3]) == int:
+                #Shift state
+                if top_3 not in table[top_2]:
+                    return False
+                stack_states.insert(0, table[top_2][top_3])
+                stack_symbols.append(top_3)
+                stack_input.pop(0)
+            
+                
+            elif type(table[top_2][top_3]) == list:
+                #reduction state
+                if top_3 not in table[top_2]:
+                    return False
+                rule_len = table[top_2][top_3][1]
+                if rule_len > len(stack_states):
+                    return False
+                else:
+                    for _ in range(rule_len):
+                        stack_states.pop(0)
+                        stack_symbols.pop(-1)
+
+                    stack_symbols.append(table[top_2][top_3][2]) 
+                    top_2=stack_states[0]
+                    goto = table[top_2][stack_symbols[-1]] 
+                    stack_states.insert(0, goto)
+            else:
+
+                return False        
+                       

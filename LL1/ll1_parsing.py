@@ -28,16 +28,13 @@ class LL1Parsing:
         self.createTable()
         #Get the String to Analize       
         stack_input = [i for i in string]
-        stack_input.append('$')    
+        stack_input.append('$') 
         stack_states = [self.grammar.N[0]]
-        stack_states.append('$')
-
+        stack_states.append('$')  
         while len(stack_input) >= 1 and len(stack_states) >= 1:
             #Save the current top in each stack
             top_1 = stack_input[0]
             top_2 = stack_states[0]
-            print(f'top1: {top_1}')
-            print(f'top2: {top_2}')
             #Using the parse table to replace the current state, to the rule that we need to generate the input 
             if top_1 =='$' and top_2 == '$': 
 
@@ -59,4 +56,4 @@ class LL1Parsing:
 
             else:
                 return False
-                                 
+                                       
