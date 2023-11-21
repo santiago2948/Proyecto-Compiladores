@@ -25,7 +25,7 @@ class Grammar:
                 self.agregation_function(N, i[0])
                 for x in self.faux:
                     self.agregation_function(x, i[0])
-            elif i[0] in self.N:
+            elif i[0] in self.N and i[0]!=N:
                 for k in range(0, len(i)):
                     if i[k] in self.N:
                             self.faux.append(N)

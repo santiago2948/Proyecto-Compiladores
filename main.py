@@ -62,7 +62,14 @@ if __name__=="__main__":
     gramatica = ingresarGramatica(index)
     gramatica.factorizacion_izquierda()
     gramatica.Parser("aabc")"""
-    gramar= Grammar(["E", "T", "F"], {"E":["E+T", "T"], "T":["T*F", "F"], "F":["(E)", "i"]}, "E")
+    rules={"E":["E+T", "T"], "T":["T*F", "F"], "F":["(E)", "i"]}
+    n=["E", "T", "F"]
+    #left = leftRecursion(rules, n)
+   # rules=left[0]
+    #n=left[1]
+    gramar= Grammar(n, rules, "E")
+    gramar.First()
+    gramar.apply_follow()
     lr=LRK(gramar) 
     lr.createAutomata()
     
