@@ -296,6 +296,7 @@ class Grammar:
         self.P.update(nuevas_producciones)      
 
     def tryTransform(self):
+        
         self.left_factoring()
         self.leftRecursion()
         self.First()
@@ -308,10 +309,9 @@ class Grammar:
     def Parser(self, string):
         self.First()
         self.apply_follow()
-        answer= self.isLL1()
         answer=self.tryTransform()
-        print(self.P)
         if answer:
+           
             parser= LL1Parsing(self)
             analizado=parser.analize(string)
             if analizado:
@@ -319,11 +319,13 @@ class Grammar:
             else:
                 print("No")
         else:
-            lr=LRK(self) 
-            answer=lr.analize_lrk(string)
-            if answer:
+            
+            lr = LRK(self) 
+            answer_2 = lr.analize_lrk(string)
+            if answer_2 == True:
                 print("Yes")
-            elif answer=="mis":
+            elif answer_2 == 'error':
+                print('error')
                 pass
             else:
                 print("No")

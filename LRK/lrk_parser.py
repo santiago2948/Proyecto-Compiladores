@@ -185,9 +185,8 @@ class LRK:
     def analize_lrk(self, string)->bool:
         table = self.createAutomata()
         
-        if table ==False:
-            print("error")
-            return "mis"
+        if table == False:
+            return 'error'
     
         stack_states = []
         stack_states.append(0)
