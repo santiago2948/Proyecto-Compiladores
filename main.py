@@ -40,5 +40,5 @@ if __name__=="__main__":
         
     for grammar in gramaticas:
         for string in gramaticas[grammar]:
-            print(string)
+            
             grammar.Parser(string)
